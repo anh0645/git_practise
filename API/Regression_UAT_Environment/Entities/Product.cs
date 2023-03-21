@@ -14,12 +14,15 @@ namespace Regression_UAT_Environment
         public string? code { get; set; }
         public string? iconColor { get; set; }
         public string? productLine { get; set; }
+        public string? solutionFamilyId { get; set; }
+        public string? type { get; set; }
+
     }
 
 
     public static class ProductFactory
     {
-        public static ProductList createProductList(string id, string name, string code, string iconColor, string productLine)
+        public static ProductList createProductList(string id, string name, string code, string iconColor, string productLine, string solutionFamilyId, string type)
         {
             if (id == null)
             {
@@ -32,7 +35,9 @@ namespace Regression_UAT_Environment
                             name = name,
                             code = code,
                             iconColor = iconColor,
-                            productLine = productLine
+                            productLine = productLine,
+                            solutionFamilyId = solutionFamilyId,
+                            type = type
                         }
                     }
                 };
@@ -49,15 +54,17 @@ namespace Regression_UAT_Environment
                             name = name,
                             code = code,
                             iconColor = iconColor,
-                            productLine = productLine
+                            productLine = productLine,
+                            solutionFamilyId = solutionFamilyId,
+                            type = type
                         }
                     }
                 };
-            } 
+            }
         }
 
 
-        public static ProductList createProductList(List<string> listProductId, List<string> listProductName, List<string> listProductCode, List<string> listProductIconColor, List<string> listProductLineName)
+        public static ProductList createProductList(List<string> listProductId, List<string> listProductName, List<string> listProductCode, List<string> listProductIconColor, List<string> listProductLineName, List<string> solutionFamilyID, List<string> type)
         {
             List<Product> products = new List<Product>();
             if (listProductId.Count == 0)
@@ -69,7 +76,9 @@ namespace Regression_UAT_Environment
                         name = listProductName[i],
                         code = listProductCode[i],
                         iconColor = listProductIconColor[i],
-                        productLine = listProductLineName[i]
+                        productLine = listProductLineName[i],
+                        solutionFamilyId = solutionFamilyID[i],
+                        type = type[i]
                     };
                     products.Add(product);
                 }
@@ -84,12 +93,14 @@ namespace Regression_UAT_Environment
                         name = listProductName[i],
                         code = listProductCode[i],
                         iconColor = listProductIconColor[i],
-                        productLine = listProductLineName[i]
+                        productLine = listProductLineName[i],
+                        solutionFamilyId = solutionFamilyID[i],
+                        type = type[i]
                     };
                     products.Add(product);
                 }
             }
-           
+
             return new ProductList
             {
                 products = products
@@ -119,7 +130,7 @@ namespace Regression_UAT_Environment
                     productLine = productLine
                 };
             }
-            
+
         }
     }
 }

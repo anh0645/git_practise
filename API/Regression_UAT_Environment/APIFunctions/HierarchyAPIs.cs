@@ -40,5 +40,37 @@ namespace Regression_UAT_Environment
                 return new Tuple<HttpStatusCode, String>(response.StatusCode, response.Content.ReadAsStringAsync().Result);
             }
         }
+
+        public static Tuple<HttpStatusCode, String> Delete_Hierarchy_Details(string hierarchyId)
+        {
+            var builder = new UriBuilder($"{requestURL}/{hierarchyId}");
+            builder.Query = $"id={hierarchyId}";
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new System.Uri($"{requestURL}/{hierarchyId}"),
+                Method = HttpMethod.Delete,
+            };
+            using (var response = client.SendAsync(request).Result)
+            {
+                return new Tuple<HttpStatusCode, String>(response.StatusCode, response.Content.ReadAsStringAsync().Result);
+            }
+        }
+
+        public static Tuple<HttpStatusCode, String> Update_Hierarchy_By_Id(string id, Hierarchy HierarchyDetails)
+        {
+            var json = JsonConvert.SerializeObject(HierarchyDetails);
+            var requestBody = new StringContent(json, Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new System.Uri(requestURL + $"/{id}"),
+                Method = HttpMethod.Patch,
+                Content = requestBody
+            };
+            using (var response = client.SendAsync(request).Result)
+            {
+                return new Tuple<HttpStatusCode, String>(response.StatusCode, response.Content.ReadAsStringAsync().Result);
+            }
+        }
+
     }
 }

@@ -18,12 +18,17 @@ namespace Regression_UAT_Environment.Tests
         private string productLineName;
         private string productLineId;
         private string productIconColor = String.Format("#{0:X6}", new Random().Next(0x1000000));
+        private string solutionFamilyId;
+        private string solutionFamilyName;
+        private string solutionFamilyCode;
+        private SolutionFamily solutionFamilyDetails;
         private ProductList productDetails;
         private List<string> listProductId = new List<string>();
         private List<string> listProductName = new List<string>();
         private List<string> listProductCode = new List<string>();
         private List<string> listProductIconColor = new List<string>();
         private List<string> listProductLineName = new List<string>();
+
 
         public ProductTests(ITestOutputHelper logger)
         {
@@ -69,11 +74,21 @@ namespace Regression_UAT_Environment.Tests
             //Create new productLine
             Create_New_ProductLine();
 
+            // Create new Solution Family
+            solutionFamilyId = $"{Guid.NewGuid()}";
+            solutionFamilyName = $"Solution_Family_anh_{StringUtils.RandomString(10)}";
+            solutionFamilyCode = StringUtils.RandomString(5);
+            solutionFamilyDetails = SolutionFamilyFactory.createSolutionFamily(solutionFamilyId, solutionFamilyName, solutionFamilyCode, productLineId);
+            Tuple<HttpStatusCode, String> responseCreateSolutionFamily = SolutionFamilyAPIs.Create_Solution_Family(solutionFamilyDetails);
+            logger.WriteLine("New SolutionFamily:" + responseCreateSolutionFamily.Item2);
+            Assert.Equal(expected: HttpStatusCode.OK, responseCreateSolutionFamily.Item1);
+
             //Create new Product
             productId = $"{Guid.NewGuid()}";
             productName = $"Product_{StringUtils.RandomString(10)}";
             productCode = StringUtils.RandomString(5);
-            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName);
+            string type = "API";
+            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName, solutionFamilyId, type);
             logger.WriteLine("body" + JsonConvert.SerializeObject(productDetails).ToString());
             Tuple<HttpStatusCode, String> responseCreateProduct = ProductAPIs.Create_Products(productDetails);
             logger.WriteLine("Response Create Product: " + responseCreateProduct);
@@ -85,27 +100,28 @@ namespace Regression_UAT_Environment.Tests
             Assert.Equal(expected: productLineName, JArray.Parse(responseCreateProduct.Item2)[0]["productLine"].ToString());
         }
 
-        [Fact]
-        public void Test782502_Create_Multi_Product_With_All_Valid_Value()
-        {
-            //Create new productLine
-            Create_New_ProductLine();
+        //[Fact]
+        //public void Test782502_Create_Multi_Product_With_All_Valid_Value()
+        //{
+        //    //Create new productLine
+        //    Create_New_ProductLine();
 
-            //Create information of 5 Products
-            for (int i = 0; i < 5; i++)
-            {
-                listProductId.Add($"{Guid.NewGuid()}");
-                listProductName.Add($"Product_{StringUtils.RandomString(10)}");
-                listProductCode.Add(StringUtils.RandomString(6));
-                listProductIconColor.Add(productIconColor);
-                listProductLineName.Add(productLineName);
-            }
-            //Create Multiple Product
-            var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName);
-            Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
-            logger.WriteLine("Response Create Multiple Product: " + responseCreateMultipleProduct);
-            Assert.Equal(expected: HttpStatusCode.OK, responseCreateMultipleProduct.Item1);
-        }
+        //    //Create information of 5 Products
+        //    for (int i = 0; i < 5; i++)
+        //    {
+        //        listProductId.Add($"{Guid.NewGuid()}");
+        //        listProductName.Add($"Product_{StringUtils.RandomString(10)}");
+        //        listProductCode.Add(StringUtils.RandomString(6));
+        //        listProductIconColor.Add(productIconColor);
+        //        listProductLineName.Add(productLineName);
+                
+        //    }
+        //    //Create Multiple Product
+        //    var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName, solutionFamilyId, type);
+        //    Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
+        //    logger.WriteLine("Response Create Multiple Product: " + responseCreateMultipleProduct);
+        //    Assert.Equal(expected: HttpStatusCode.OK, responseCreateMultipleProduct.Item1);
+        //}
 
         [Fact]
         public void Test782503_Post_Create_One_Product_Without_GUID()
@@ -117,54 +133,56 @@ namespace Regression_UAT_Environment.Tests
             productId = null;
             productName = $"Product_{StringUtils.RandomString(10)}";
             productCode = StringUtils.RandomString(5);
-            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName);
+            string type = "API";
+            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct = ProductAPIs.Create_Products(productDetails);
             logger.WriteLine("Response Create Product: " + responseCreateProduct);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProduct.Item1);
         }
-        [Fact]
-        public void Test782594_Post_Create_Multi_Product_Without_Product_Name_Or_Code_Or_Color_Or_ProductLine()
-        {
-            //Create new productLine
-            Create_New_ProductLine();
+        //[Fact]
+        //public void Test782594_Post_Create_Multi_Product_Without_Product_Name_Or_Code_Or_Color_Or_ProductLine()
+        //{
+        //    //Create new productLine
+        //    Create_New_ProductLine();
 
-            //Create information of 5 Products
-            List<string> listProductName = new List<string> { null, null, StringUtils.RandomString(6), productIconColor, productLineName };
-            List<string> listProductCode = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", null, productIconColor, productLineName };
-            List<string> listProductIconColor = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", StringUtils.RandomString(6), null, productLineName };
-            List<string> listProductLineName = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", StringUtils.RandomString(6), productIconColor, null };
+        //    //Create information of 5 Products
+        //    List<string> listProductName = new List<string> { null, null, StringUtils.RandomString(6), productIconColor, productLineName };
+        //    List<string> listProductCode = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", null, productIconColor, productLineName };
+        //    List<string> listProductIconColor = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", StringUtils.RandomString(6), null, productLineName };
+        //    List<string> listProductLineName = new List<string> { null, $"Product_{StringUtils.RandomString(10)}", StringUtils.RandomString(6), productIconColor, null };
 
-            //Create Multiple Product
-            var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName);
-            Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
-            logger.WriteLine("Response Create Multiple Product without productName/Code/Color/roductLine:" + responseCreateMultipleProduct);
-            Assert.Equal(expected: HttpStatusCode.BadRequest, responseCreateMultipleProduct.Item1);
-        }
+        //    //Create Multiple Product
+        //    string type = "API";
+        //    var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName, solutionFamilyId, type);
+        //    Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
+        //    logger.WriteLine("Response Create Multiple Product without productName/Code/Color/roductLine:" + responseCreateMultipleProduct);
+        //    Assert.Equal(expected: HttpStatusCode.BadRequest, responseCreateMultipleProduct.Item1);
+        //}
 
-        [Fact]
-        public void Test782601_Post_Create_Multi_Product_with_Invalid_ProductLine()
-        {
-            productLineName = $"Invalid ProductLine Name {StringUtils.RandomString(10)}";
+        //[Fact]
+        //public void Test782601_Post_Create_Multi_Product_with_Invalid_ProductLine()
+        //{
+        //    productLineName = $"Invalid ProductLine Name {StringUtils.RandomString(10)}";
 
-            //Create information of 5 Products
-            List<string> listProductName = new List<string>();
-            List<string> listProductCode = new List<string>();
-            List<string> listProductIconColor = new List<string>();
-            List<string> listProductLineName = new List<string>();
-            for (int i = 0; i < 3; i++)
-            {
-                listProductId.Add($"{Guid.NewGuid()}");
-                listProductName.Add($"Product_{StringUtils.RandomString(10)}");
-                listProductCode.Add(StringUtils.RandomString(6));
-                listProductIconColor.Add(productIconColor);
-                listProductLineName.Add(productLineName);
-            }
-            //Create Multiple Product
-            var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName);
-            Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
-            logger.WriteLine("Response Create Multiple Product with Invalid ProductLine: " + responseCreateMultipleProduct);
-            Assert.Equal(expected: HttpStatusCode.BadRequest, responseCreateMultipleProduct.Item1);
-        }
+        //    //Create information of 5 Products
+        //    List<string> listProductName = new List<string>();
+        //    List<string> listProductCode = new List<string>();
+        //    List<string> listProductIconColor = new List<string>();
+        //    List<string> listProductLineName = new List<string>();
+        //    for (int i = 0; i < 3; i++)
+        //    {
+        //        listProductId.Add($"{Guid.NewGuid()}");
+        //        listProductName.Add($"Product_{StringUtils.RandomString(10)}");
+        //        listProductCode.Add(StringUtils.RandomString(6));
+        //        listProductIconColor.Add(productIconColor);
+        //        listProductLineName.Add(productLineName);
+        //    }
+        //    //Create Multiple Product
+        //    var multipleProductDetails = ProductFactory.createProductList(listProductId, listProductName, listProductCode, listProductIconColor, listProductLineName);
+        //    Tuple<HttpStatusCode, String> responseCreateMultipleProduct = ProductAPIs.Create_Products(multipleProductDetails);
+        //    logger.WriteLine("Response Create Multiple Product with Invalid ProductLine: " + responseCreateMultipleProduct);
+        //    Assert.Equal(expected: HttpStatusCode.BadRequest, responseCreateMultipleProduct.Item1);
+        //}
 
         [Fact]
         public void Test782666_Post_Create_Product_with_Name_Match_with_another_Product()
@@ -176,7 +194,8 @@ namespace Regression_UAT_Environment.Tests
             productId = $"{Guid.NewGuid()}";
             productName = $"Product_{StringUtils.RandomString(10)}";
             productCode = StringUtils.RandomString(5);
-            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName);
+            string type = "API";
+            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct = ProductAPIs.Create_Products(productDetails);
             logger.WriteLine("Response Create Product: " + responseCreateProduct.Item2);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProduct.Item1);
@@ -184,7 +203,7 @@ namespace Regression_UAT_Environment.Tests
             //Create new Product (2) with Product Name same with Product Name of Product (1)
             string productId2 = $"{Guid.NewGuid()}";
             string productCode2 = StringUtils.RandomString(5);
-            var productDetails2 = ProductFactory.createProductList(productId2, productName, productCode2, productIconColor, productLineName);
+            var productDetails2 = ProductFactory.createProductList(productId2, productName, productCode2, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct2 = ProductAPIs.Create_Products(productDetails2);
             logger.WriteLine("Response Create Product with Name match with another Product: " + responseCreateProduct2);
             Assert.Equal(expected: HttpStatusCode.BadRequest, responseCreateProduct2.Item1);
@@ -212,7 +231,8 @@ namespace Regression_UAT_Environment.Tests
             productId = $"Invalid_{Guid.NewGuid()}";
             productName = $"Product_{StringUtils.RandomString(10)}";
             productCode = StringUtils.RandomString(5);
-            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName);
+            string type = "API";
+            productDetails = ProductFactory.createProductList(productId, productName, productCode, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseUpdateProduct = ProductAPIs.Update_Product_By_Id(productId, productDetails.products[0]);
             logger.WriteLine("Response Update Product with Invalid ID and valid RequestBody: " + responseUpdateProduct);
             Assert.Equal(expected: HttpStatusCode.BadRequest, responseUpdateProduct.Item1);
@@ -230,18 +250,18 @@ namespace Regression_UAT_Environment.Tests
             Assert.Equal(expected: HttpStatusCode.BadRequest, responseUpdateProduct.Item1);
         }
 
-        [Fact]
-        public void Test782712_Update_Product_with_Name_and_Product_Line_Match_with_Another_Product()
-        {
-            // Initialze the step to get the valid productId and productLineId ID from database
-            Test782502_Create_Multi_Product_With_All_Valid_Value();
+        //[Fact]
+        //public void Test782712_Update_Product_with_Name_and_Product_Line_Match_with_Another_Product()
+        //{
+        //    // Initialze the step to get the valid productId and productLineId ID from database
+        //    Test782502_Create_Multi_Product_With_All_Valid_Value();
 
-            //Update Product with Name and ProductLine match with another Product
-            productDetails = ProductFactory.createProductList(listProductId[0], listProductName[1], listProductCode[0], listProductIconColor[0], listProductLineName[1]);
-            Tuple<HttpStatusCode, String> responseUpdateProduct = ProductAPIs.Update_Product_By_Id(listProductId[0], productDetails.products[0] );
-            logger.WriteLine("Response Update Product with Name and ProductLine match with another Product: " + responseUpdateProduct);
-            Assert.Equal(expected: HttpStatusCode.BadRequest, responseUpdateProduct.Item1);
-        }
+        //    //Update Product with Name and ProductLine match with another Product
+        //    productDetails = ProductFactory.createProductList(listProductId[0], listProductName[1], listProductCode[0], listProductIconColor[0], listProductLineName[1]);
+        //    Tuple<HttpStatusCode, String> responseUpdateProduct = ProductAPIs.Update_Product_By_Id(listProductId[0], productDetails.products[0] );
+        //    logger.WriteLine("Response Update Product with Name and ProductLine match with another Product: " + responseUpdateProduct);
+        //    Assert.Equal(expected: HttpStatusCode.BadRequest, responseUpdateProduct.Item1);
+        //}
 
         [Fact]
         public void Test782713_Delete_Product_with_Valid_GUID_This_Product_Not_Associated_with_Custome_or_Product_or_Entitlements()

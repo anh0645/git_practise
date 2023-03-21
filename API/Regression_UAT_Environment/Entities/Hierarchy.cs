@@ -22,6 +22,21 @@ namespace Regression_UAT_Environment
                     environmentId = environmentId
                 };
             }
+            else if (name == null)
+            {
+                return new Hierarchy
+                {
+                    environmentId = environmentId,
+                    customerId = customerId
+                };
+            }
+            else if (name == null && environmentId ==  null)
+            {
+                return new Hierarchy
+                {
+                    customerId = customerId
+                };
+            }
             else
                 return new Hierarchy
                 {
@@ -29,6 +44,13 @@ namespace Regression_UAT_Environment
                     environmentId = environmentId,
                     customerId = customerId
                 };
+        }
+        public static Hierarchy updateHierarchy(string name)
+        {
+            return new Hierarchy
+            {
+                name = name
+            };
         }
     }
 }

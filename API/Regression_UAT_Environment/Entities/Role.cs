@@ -58,5 +58,40 @@ namespace Regression_UAT_Environment
                     }
                 };
         }
+
+        public static Role updateRole(string name, string sfRoleId)
+        {
+            if (name == null)
+            {
+                return new Role
+                {
+                    role = new RoleDetails()
+                    {
+                        sfRoleId = sfRoleId
+                    }
+                };
+            }   
+            else if (sfRoleId == null)
+            {
+                return new Role
+                {
+                    role = new RoleDetails()
+                    {
+                        name = name
+                    }
+                };
+            }
+            else
+            {
+                return new Role
+                {
+                    role = new RoleDetails()
+                    {
+                        name = name,
+                        sfRoleId = sfRoleId
+                    }
+                };
+            }
+        }
     }
 }

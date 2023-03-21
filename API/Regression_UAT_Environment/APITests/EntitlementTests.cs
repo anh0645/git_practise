@@ -27,6 +27,10 @@ namespace Regression_UAT_Environment.Tests
         private Associate associateCustomerDetails;
         private Associate associateCustomerDetails2;
         private SetDefaultCustomer SetDefault;
+        private string solutionFamilyId;
+        private string solutionFamilyName;
+        private string solutionFamilyCode;
+        private SolutionFamily solutionFamilyDetails;
 
         public bool localAccount { get; private set; }
         // Initialize the varible using in script
@@ -598,11 +602,21 @@ namespace Regression_UAT_Environment.Tests
             Tuple<HttpStatusCode, String> responseCreateProductLine = ProductLineAPIs.Create_New_ProductLine(productLineDetails);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProductLine.Item1);
 
+            // Create new Solution Family
+            solutionFamilyId = $"{Guid.NewGuid()}";
+            solutionFamilyName = $"Solution_Family_anh_{StringUtils.RandomString(10)}";
+            solutionFamilyCode = StringUtils.RandomString(5);
+            solutionFamilyDetails = SolutionFamilyFactory.createSolutionFamily(solutionFamilyId, solutionFamilyName, solutionFamilyCode, productLineId);
+            Tuple<HttpStatusCode, String> responseCreateSolutionFamily = SolutionFamilyAPIs.Create_Solution_Family(solutionFamilyDetails);
+            logger.WriteLine("New SolutionFamily:" + responseCreateSolutionFamily.Item2);
+            Assert.Equal(expected: HttpStatusCode.OK, responseCreateSolutionFamily.Item1);
+
             // Create new product(1)
             productId1 = $"{Guid.NewGuid()}";
             string productName1 = $"Product_{StringUtils.RandomString(10)}";
             string productCode1 = StringUtils.RandomString(5);
-            var productDetails1 = ProductFactory.createProductList(productId1, productName1, productCode1, productIconColor, productLineName);
+            string type = "API";
+            var productDetails1 = ProductFactory.createProductList(productId1, productName1, productCode1, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct1 = ProductAPIs.Create_Products(productDetails1);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProduct1.Item1);
 
@@ -634,7 +648,8 @@ namespace Regression_UAT_Environment.Tests
             productId2 = $"{Guid.NewGuid()}";
             string productName2 = $"Product_{StringUtils.RandomString(10)}";
             string productCode2 = StringUtils.RandomString(5);
-            var productDetails2 = ProductFactory.createProductList(productId2, productName2, productCode2, productIconColor, productLineName);
+            string type = "API";
+            var productDetails2 = ProductFactory.createProductList(productId2, productName2, productCode2, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct2 = ProductAPIs.Create_Products(productDetails2);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProduct2.Item1);
 
@@ -666,7 +681,8 @@ namespace Regression_UAT_Environment.Tests
             productId1 = $"{Guid.NewGuid()}";
             string productName1 = $"Product_{StringUtils.RandomString(10)}";
             string productCode1 = StringUtils.RandomString(5);
-            var productDetails1 = ProductFactory.createProductList(productId1, productName1, productCode1, productIconColor, productLineName);
+            string type = "API";
+            var productDetails1 = ProductFactory.createProductList(productId1, productName1, productCode1, productIconColor, productLineName, solutionFamilyId, type);
             Tuple<HttpStatusCode, String> responseCreateProduct1 = ProductAPIs.Create_Products(productDetails1);
             Assert.Equal(expected: HttpStatusCode.OK, responseCreateProduct1.Item1);
 

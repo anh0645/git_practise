@@ -89,5 +89,20 @@ namespace Regression_UAT_Environment
             }
         }
 
+        public static Tuple<HttpStatusCode, String> Create_Product(ProductList ProductDetails)
+        {
+            var json = JsonConvert.SerializeObject(ProductDetails);
+            var requestBody = new StringContent(json, Encoding.UTF8, "application/json");
+            var request = new HttpRequestMessage
+            {
+                RequestUri = new System.Uri(requestURL),
+                Method = HttpMethod.Post,
+                Content = requestBody
+            };
+            using (var response = client.SendAsync(request).Result)
+            {
+                return new Tuple<HttpStatusCode, String>(response.StatusCode, response.Content.ReadAsStringAsync().Result);
+            }
+        }
     }
 }
